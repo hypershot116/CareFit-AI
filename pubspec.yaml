@@ -1,5 +1,5 @@
 name: carefit_ai
-description: "A new Flutter project."
+description: "CareFit AI - Personal AI Fitness Coach"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_secure_storage: ^9.0.0
+  google_fonts: ^6.2.1
+  http: ^1.2.1
+  url_launcher: ^6.3.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="carefit_ai"
+        android:label="CareFit_ai"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
