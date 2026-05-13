@@ -21,7 +21,9 @@
 
 ## 📱 Screenshots
 
-> *Onboarding → Home → Fitness Form → AI Generated Plan*
+| Onboarding | Home | Form | Result |
+|------------|------|------|--------|
+| ![](screenshots/onboarding.png) | ![](screenshots/home.png) | ![](screenshots/form.png) | ![](screenshots/result.png) |
 
 ---
 
