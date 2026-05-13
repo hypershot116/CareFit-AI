@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carefit_ai/theme/app_theme.dart';
 import 'package:carefit_ai/services/storage_service.dart';
+import 'package:carefit_ai/services/groq_service.dart';
 import 'package:carefit_ai/screens/home_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -18,6 +19,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _obscureText = true;
+  String _statusMessage = '';
+  bool _isVerifying = false;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
 
@@ -44,29 +47,51 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Future<void> _saveAndContinue() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
 
     final key = _controller.text.trim();
     if (!key.startsWith('gsk_')) {
-      setState(() => _isLoading = false);
-      _showError('Invalid key. Groq keys start with "gsk_"');
+      _showSnackBar(
+        'Invalid key format. Groq keys start with "gsk_"',
+        isError: true,
+      );
       return;
     }
 
-    await StorageService().saveApiKey(key);
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+    setState(() {
+      _isLoading = true;
+      _isVerifying = true;
+      _statusMessage = 'Verifying your API key...';
+    });
+
+    try {
+      await GroqService().verifyApiKey(key);
+
+      setState(() => _statusMessage = 'Key verified! Taking you in...');
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      await StorageService().saveApiKey(key);
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _isVerifying = false;
+        _statusMessage = '';
+      });
+      _showSnackBar(e.toString().replaceAll('Exception: ', ''), isError: true);
     }
   }
 
-  void _showError(String msg) {
+  void _showSnackBar(String msg, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(msg),
-        backgroundColor: AppTheme.error,
+        backgroundColor: isError ? AppTheme.error : AppTheme.accent,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
@@ -190,6 +215,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           TextFormField(
                             controller: _controller,
                             obscureText: _obscureText,
+                            enabled: !_isLoading,
                             style: const TextStyle(
                               color: AppTheme.textPrimary,
                               fontFamily: 'monospace',
@@ -217,6 +243,30 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                 ? 'Please enter your API key'
                                 : null,
                           ),
+                          // Verification status
+                          if (_isVerifying && _statusMessage.isNotEmpty) ...[
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppTheme.accent,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  _statusMessage,
+                                  style: const TextStyle(
+                                    color: AppTheme.accent,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                           const SizedBox(height: 16),
                           RichText(
                             text: TextSpan(
