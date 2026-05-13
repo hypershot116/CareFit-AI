@@ -23,7 +23,7 @@
 
 | Onboarding | Home | Form | Result |
 |------------|------|------|--------|
-| ![](screenshots/onboarding.png) | ![](screenshots/home.png) | ![](screenshots/form.png) | ![](screenshots/result.png) |
+| ![](screenshots/onboarding.jpg) | ![](screenshots/home.jpg) | ![](screenshots/form.jpg) | ![](screenshots/result.jpg) |
 
 ---
 
